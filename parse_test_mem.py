@@ -68,10 +68,31 @@ def plot_data(data):
         plt.xlabel("time")
         plt.grid()
         plt.ylabel("Memory (in MB)")
-        fig.savefig(title + '.png')
+        fig.savefig(title + key + '.png')
     return 0
+
+
+def get_max_mem_usage(data):
+    for key, value in data.items():
+        tmp = value.transpose()
+        df = pd.DataFrame(data=tmp, index=None, columns=col_names[1:])
+        comm_name = df['command_name'][0]
+        full_comm_name = df['full_command_name'][0]
+
+        df = df.drop(columns=['PPID','command_name', 'full_command_name'])
+        df = df.astype(float)
+
+        max_mem_ind = df['memory'].idxmax()
+        with open(comm_name + key + '.out', 'w') as f:
+            f.write("Command: " + comm_name + \
+                    "\nFull command: " + full_comm_name + \
+                  "\nMax memory usage (MB): " + str(df['memory'][max_mem_ind]) + \
+                  "\nRunning time (sec): " + str(df['time'][max_mem_ind]))
+
+
 
 # ! add path
 path_to_test_mem_file = ""
 data = parse_mem_usage_output(path_to_test_mem_file)
-plot_data(data)
+#plot_data(data)
+get_max_mem_usage(data)
